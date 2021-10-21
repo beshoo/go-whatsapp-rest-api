@@ -1,6 +1,11 @@
 # go-whatsapp-rest-API
-go-whatsapp-rest-APIis a Go library for the WhatsApp web which use Swagger as api interface
-Sessions are stored in MYSQL
+go-whatsapp-rest-API is a **Go library** for the WhatsApp web which use Swagger as api interface
+
+# Multi-devices (MD) Support.
+This version does NOT support multi-devices (MD)
+
+# Sessions 
+All sessions are stored in MYSQL
 
 # The API support the following
 ```
