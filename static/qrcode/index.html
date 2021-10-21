@@ -1,0 +1,82 @@
+<html>
+  <head>
+    <script type="text/javascript" src="scripts/qrcode.js"></script>
+  </head>
+  <body>
+    <div>Session ID</div>
+    <div id="uuid"></div>
+    <div>QR Code to scan</div>
+    <div id="qr"></div>
+    <div>======== Profile =========</div>
+    <div id="data"></div>
+    <script type="text/javascript">
+      let qrcode = new QRCode(document.getElementById("qr"), {
+        width: 400,
+        height: 400,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      let baseUrl = "http://107.6.183.138:4567/api";
+      let sessionId = uuidv4();
+      let scanned = false;
+
+      function uuidv4() {
+        return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+          (
+            c ^
+            (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+          ).toString(16)
+        );
+      }
+
+      async function generateAndShowQr() {
+        document.getElementById("uuid").textContent = sessionId;
+        while (!scanned) {
+          qrString = await getQR();
+          qrcode.makeCode(qrString);
+          await wait(15 * 1000);
+        }
+      }
+
+      async function checkProfile() {
+        while (!scanned) {
+          profile = await profileRequest();
+          await wait(500);
+          if (profile.code != 500) {
+            scanned = true;
+            document.getElementById("data").textContent = JSON.stringify(
+              profile
+            );
+          }
+        }
+      }
+
+      async function wait(time) {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve();
+          }, time);
+        });
+      }
+      async function getQR() {
+        const formData = new URLSearchParams();
+        formData.set("sessionId", sessionId);
+        res = await fetch(baseUrl + "/profile/scanqr", {
+          body: formData,
+          method: "POST"
+        });
+        data = await res.json();
+        console.log(data);
+
+        return data.base64;
+      }
+
+      async function profileRequest() {
+        res = await fetch(baseUrl + "/profile/me?sessionId=" + sessionId);
+        data = await res.json();
+        return data;
+      }
+      generateAndShowQr();
+      checkProfile();
+    </script>
+  </body>
+</html>

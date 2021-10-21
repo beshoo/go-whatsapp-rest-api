@@ -1,0 +1,1381 @@
+swagger: "2.0"
+info:
+  title: Wa-Api
+  version: 0.1.0
+  description: "Whatsapp Rest API, you will need to scan the qr code using or your own front end or you could use this [ScanQR](/qrcode) link.\n You can download the code [here](/qrcode.zip)\n\n To recieve message you will need to create your own server and set its url as hook using this [API](/#/Profile/setHook) as shown in hook [definitions](/#/Hooks).\nYou can download a sample nodejs server [here](/test-wa-handler-server.zip)\n\n <b>PS:</b> Phone numbers should have country code without the <b>+</b> sign eg: <b>14049190651</b> not <b>+14049190651</b>"
+basePath: /api
+consumes:
+  - application/json
+  - application/x-www-form-urlencoded
+  - multipart/form-data
+produces:
+  - application/json
+
+schemes:
+  - http
+paths:
+  /profile/scanqr:
+    post:
+      operationId: scanQr
+      description: Create a <b>UUID4</b> identifier to use as sessionId. you will need to use this for every subsequent call, or use this [ScanQR](/qrcode) link
+      tags:
+        - Profile
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: sessionId
+          in: formData
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id will used associate with phonenumber scanned, use UUID4
+        - name: proxyURL
+          in: formData
+          type: string
+          format: uri
+          description: proxy host url
+
+      responses:
+        200:
+          description: Base64 string
+          schema:
+            $ref: "#/definitions/QRCode"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /profile/phone/isconnected:
+    get:
+      operationId: isConnected
+      description: "Return true if users phone is connected to internet and whats app web"
+      tags:
+        - Profile
+      parameters:
+        - name: sessionId
+          in: query
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+      responses:
+        200:
+          description: Returns true if the number has whatsapp
+          schema:
+            type: object
+            required:
+              - isConnected
+            properties:
+              isConnected:
+                type: boolean
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /profile/phone/connect:
+    post:
+      operationId: connect
+      description: "Connect using Session Id used while succesfull scan"
+      tags:
+        - Profile
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: sessionId
+          in: formData
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+      responses:
+        200:
+          description: Ok
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /profile/phone/disconnect:
+    post:
+      operationId: disconnect
+      description: "Disconnect Session Id used while succesfull scan"
+      tags:
+        - Profile
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: sessionId
+          in: formData
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+      responses:
+        200:
+          description: Ok
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /profile/logout:
+    post:
+      operationId: logout
+      description: "The user will be logged out with his session cleared from DB, you will need to rescan and reset the webhook to reconnect the user"
+      tags:
+        - Profile
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: sessionId
+          in: formData
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+      responses:
+        200:
+          description: Ok
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /profile/me:
+    get:
+      operationId: profile
+      description: Get Scanned users profile pic and his phone number
+      tags:
+        - Profile
+      parameters:
+        - name: sessionId
+          in: query
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+      responses:
+        200:
+          description: Profile Data
+          schema:
+            $ref: "#/definitions/Profile"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /profile/hook/set:
+    post:
+      operationId: setHook
+      description: Set Hook for callbacks, refer hooks section for all hooks which will be called
+      tags:
+        - Profile
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - $ref: "#/parameters/sessionIdParam"
+        - name: hookURL
+          in: formData
+          type: string
+          format: uri
+      responses:
+        200:
+          description: Ok
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /profile/contacts:
+    get:
+      operationId: getContacts
+      description: Get Contacts for the user
+      tags:
+        - Profile
+      parameters:
+        - name: sessionId
+          in: query
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+      responses:
+        200:
+          description: Contacts for user
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ContactItem"
+
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /number/{phoneNumber}/haswhatsapp:
+    get:
+      operationId: hasWhatsApp
+      tags:
+        - Number
+      parameters:
+        - name: sessionId
+          in: query
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+        - name: phoneNumber
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: Returns true if the number has whatsapp
+          schema:
+            type: object
+            required:
+              - hasWhatsApp
+            properties:
+              hasWhatsApp:
+                type: boolean
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+
+
+  /number/{phoneNumber}/avatar:
+    get:
+      operationId: GetAvatar
+      tags:
+        - Number
+      parameters:
+        - name: sessionId
+          in: query
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+        - name: phoneNumber
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: Profile Data
+          schema:
+            $ref: "#/definitions/Profile"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+
+  /number/{phoneNumber}/online:
+    get:
+      operationId: isOnline
+      tags:
+        - Number
+      parameters:
+        - name: sessionId
+          in: query
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+        - name: phoneNumber
+          in: path
+          type: string
+          required: true
+      responses:
+        200:
+          description: Return if the user is online
+          schema:
+            type: object
+            required:
+              - isOnline
+            properties:
+              isOnline:
+                type: boolean
+              lastSeen:
+                type: string
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /number/{phoneNumber}/chats:
+    get:
+      operationId: getChats
+      description: Get chats for specific number
+      tags:
+        - Number
+      parameters:
+        - name: sessionId
+          in: query
+          type: string
+          format: uuid4
+          required: true
+          description: Session Id used while succesfull scan
+        - name: phoneNumber
+          in: path
+          type: string
+          required: true
+        - name: numberOfMessages
+          in: query
+          type: integer
+          required: true
+          description: the number of messages in one query, max 300
+        - name: beforeMessageId
+          in: query
+          type: string
+          description: suppy this to load messages before this messageId
+        - name: fromMe
+          in: query
+          type: boolean
+          default: false
+          description: fromMe needs to be supplied if beforeMessagId is given
+      responses:
+        200:
+          description: Return chats for the specific
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ChatItem"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /send/ack/read:
+    post:
+      operationId: sendRead
+      description: Send Read Reciept
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/ReadAck"
+      responses:
+        200:
+          description: Return chats for the specific
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /send/text:
+    post:
+      operationId: sendText
+      description: Send text message
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/TextMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+
+  /send/location:
+    post:
+      operationId: sendLocation
+      description: Send location message
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/LocationMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+
+
+  /send/image:
+    post:
+      operationId: sendImage
+      description: Send Image Message
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/ImageMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /send/video:
+    post:
+      operationId: sendVideo
+      description: Send video message
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/VideoMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /send/audio:
+    post:
+      operationId: sendAudio
+      description: Send audio message
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/AudioMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+
+  /send/audiorecord:
+    post:
+      operationId: sendAudioRecord
+      description: Send audio record message
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/AudioMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+
+
+
+  /send/vcard:
+    post:
+      operationId: SendVcard
+      description: Send SendVcard Document
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/ContactMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /send/link:
+    post:
+      operationId: SendLink
+      description: Send Link Preview
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/LinkMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+
+
+  /send/doc:
+    post:
+      operationId: sendDoc
+      description: Send doc message
+      tags:
+        - Send
+      consumes:
+        - application/json
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/DocMessage"
+      responses:
+        200:
+          description: Returns status of broadcast
+          schema:
+            $ref: "#/definitions/BroadcastStatus"
+        default:
+          $ref: "#/responses/ErrorResponse"
+
+  /notify/logout:
+    post:
+      description: Notify when user logs out
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: when the user logs out
+          schema:
+            $ref: "#/definitions/NotifyLogout"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+
+  /notify/receive:
+    post:
+      description: Notify when user receive the message
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: when the user logs receive the message
+          schema:
+            $ref: "#/definitions/NotifyReceive"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+
+  /notify/connectivity:
+    post:
+      description: Notify when phone is not connected
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: when the user logs out
+          schema:
+            $ref: "#/definitions/NotifyConnectivity"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+  /message/text:
+    post:
+      description: Text message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Text message body
+          schema:
+            $ref: "#/definitions/MessageText"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+  /message/image:
+    post:
+      description: Image message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Image message body
+          schema:
+            $ref: "#/definitions/MessageImage"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+  /message/video:
+    post:
+      description: Video message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Video message body
+          schema:
+            $ref: "#/definitions/MessageVideo"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+  /message/audio:
+    post:
+      description: Audio message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Audio message body
+          schema:
+            $ref: "#/definitions/MessageAudio"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+  /message/doc:
+    post:
+      description: Doc message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Doc message body
+          schema:
+            $ref: "#/definitions/MessageDoc"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+  /message/contact:
+    post:
+      description: Contact message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Contact message body
+          schema:
+            $ref: "#/definitions/MessageContact"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+
+
+  /power/battery:
+    post:
+      description: Contact message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Contact message body
+          schema:
+            $ref: "#/definitions/MessageBattery"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+
+
+  /message/location:
+    post:
+      description: Location message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Location message body
+          schema:
+            $ref: "#/definitions/MessageLocation"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+  /message/livelocation:
+    post:
+      description: Live Location message hook
+      tags:
+        - Hooks
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          description: Location message body
+          schema:
+            $ref: "#/definitions/MessageLiveLocation"
+      responses:
+        200:
+          description: Return 200 else the api will retry
+
+parameters:
+  sessionIdParam:
+    name: sessionId
+    in: formData
+    type: string
+    format: uuid4
+    required: true
+
+responses:
+  ErrorResponse:
+    description: Error Response
+    schema:
+      $ref: "#/definitions/Error"
+
+definitions:
+  Error:
+    type: object
+    required:
+      - message
+    properties:
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
+  QRCode:
+    type: object
+    properties:
+      base64:
+        type: string
+  Profile:
+    type: object
+    required:
+      - phoneNumber
+    properties:
+      phoneNumber:
+        type: string
+      profilePic:
+        type: string
+        format: uri
+  BroadcastStatus:
+    type: object
+    properties:
+      broadcastId:
+        type: string
+      status:
+        type: string
+        enum: [processing, sent]
+
+  NumberReplyIds:
+    type: object
+    required:
+      - number
+    properties:
+      number:
+        type: string
+        example: "14049190651"
+        description: Number with country code but without plus
+      replyTo:
+        $ref: "#/definitions/MessageItem"
+
+  ContactItem:
+    type: object
+    required:
+      - number
+      - name
+    properties:
+      number:
+        type: string
+        example: "14049190651"
+        description: Number with country code but without plus
+      name:
+        type: string
+        description: Contact Name
+
+  ReadAck:
+    type: object
+    required:
+      - sessionId
+      - number
+      - messageId
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      number:
+        type: string
+      messageId:
+        type: string
+  NotifyConnectivity:
+    type: object
+    required:
+      - isConnected
+      - sessionId
+      - number
+    properties:
+      isConnected:
+        type: boolean
+      sessionId:
+        type: string
+        format: uuid4
+      number:
+        type: string
+  NotifyLogout:
+    type: object
+    required:
+      - sessionId
+      - number
+      - timestamp
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      number:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+
+  NotifyReceive:
+    type: object
+    required:
+      - sessionId
+      - number
+      - to
+      - timestamp
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      number:
+        type: string
+      to:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+
+  ChatItem:
+    type: object
+    properties:
+      messageType:
+        type: string
+        enum: [TEXT, IMAGE, VIDEO, AUDIO, DOC, LOCATION]
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      messageContext:
+        $ref: "#/definitions/MessageContext"
+      text:
+        type: string
+      caption:
+        type: string
+      imageThumb:
+        type: string
+      image:
+        type: string
+      videoThumb:
+        type: string
+      video:
+        type: string
+      audioLength:
+        type: string
+      audio:
+        type: string
+      docTitle:
+        type: string
+      pageCount:
+        type: integer
+      doc:
+        type: string
+
+  MessageItem:
+    type: object
+    required:
+      - id
+      - fromMe
+    properties:
+      id:
+        type: string
+      fromMe:
+        type: boolean
+
+  MessageInfo:
+    type: object
+    required:
+      - fromMe
+      - from
+      - to
+      - messageId
+      - owner
+    properties:
+      owner:
+        type: object
+        required:
+          - number
+          - sessionId
+        properties:
+          number:
+            type: string
+          sessionId:
+            type: string
+      messageId:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+      fromMe:
+        type: boolean
+      timestamp:
+        type: string
+        format: date-time
+      pushName:
+        type: string
+      status:
+        type: integer
+
+
+  MessageContext:
+    type: object
+    required:
+      - isForwarded
+    properties:
+      quotedMessageId:
+        type: string
+      participant:
+        type: string
+      isForwarded:
+        type: boolean
+      productMessageUrl:
+        type: string
+      productMessageId:
+        type: string
+      productMessageTitle:
+        type: string
+      productMessageDescription:
+        type: string
+      productMessageRetailerId:
+        type: string
+      productMessageType:
+        type: boolean
+      productMessageCurrencyCode:
+        type: string
+      productMessagePrice:
+        type: string
+
+  MessageText:
+    type: object
+    required:
+      - messageInfo
+      - contextInfo
+      - text
+    properties:
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      contextInfo:
+        $ref: "#/definitions/MessageContext"
+      text:
+        type: string
+
+  MessageImage:
+    type: object
+    required:
+      - messageInfo
+      - contextInfo
+      - thumbnail
+      - image
+    properties:
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      contextInfo:
+        $ref: "#/definitions/MessageContext"
+      caption:
+        type: string
+      thumbnail:
+        type: string
+      image:
+        type: string
+
+  MessageVideo:
+    type: object
+    required:
+      - messageInfo
+      - contextInfo
+      - thumbnail
+      - video
+    properties:
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      contextInfo:
+        $ref: "#/definitions/MessageContext"
+      caption:
+        type: string
+      thumbnail:
+        type: string
+      video:
+        type: string
+
+  MessageAudio:
+    type: object
+    required:
+      - messageInfo
+      - contextInfo
+      - audio
+    properties:
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      contextInfo:
+        $ref: "#/definitions/MessageContext"
+      audioLength:
+        type: string
+      audio:
+        type: string
+
+  MessageDoc:
+    type: object
+    required:
+      - messageInfo
+      - contextInfo
+    properties:
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      contextInfo:
+        $ref: "#/definitions/MessageContext"
+      title:
+        type: string
+      pageCount:
+        type: string
+      doc:
+        type: string
+
+  MessageContact:
+    type: object
+    required:
+      - messageInfo
+      - contextInfo
+    properties:
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      contextInfo:
+        $ref: "#/definitions/MessageContext"
+      vcard:
+        type: string
+      displayName:
+        type: string
+
+  MessageBattery:
+    type: object
+    required:
+      - sessionId
+      - number
+      - plugged
+      - powersave
+      - percentage
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      number:
+        type: string
+      plugged:
+        type: boolean
+      powersave:
+        type: boolean
+      percentage:
+        type: integer
+
+  MessageLocation:
+    type: object
+    required:
+      - messageInfo
+      - contextInfo
+    properties:
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      contextInfo:
+        $ref: "#/definitions/MessageContext"
+      latitudeDegree:
+        type: number
+      longituteDegree:
+        type: number
+      name:
+        type: string
+      address:
+        type: string
+      url:
+        type: string
+      thumbnail:
+        type: string
+
+  MessageLiveLocation:
+    type: object
+    required:
+      - messageInfo
+      - contextInfo
+    properties:
+      messageInfo:
+        $ref: "#/definitions/MessageInfo"
+      contextInfo:
+        $ref: "#/definitions/MessageContext"
+      latitudeDegree:
+        type: number
+      longituteDegree:
+        type: number
+      accuracyMeters:
+        type: integer
+        format: int32
+      speedMPH:
+        type: number
+      degreesClockwiseFromMagneticNorth:
+        type: integer
+        format: int32
+      caption:
+        type: string
+      thumbnail:
+        type: string
+
+  TextMessage:
+    type: object
+    required:
+      - sessionId
+      - text
+      - numberReplyIds
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      text:
+        type: string
+      numberReplyIds:
+        type: array
+        items:
+          $ref: "#/definitions/NumberReplyIds"
+
+
+  LocationMessage:
+    type: object
+    required:
+      - sessionId
+      - lat
+      - lng
+      - numberReplyIds
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      lat:
+        type: string
+      lng:
+        type: string
+      numberReplyIds:
+        type: array
+        items:
+          $ref: "#/definitions/NumberReplyIds"
+
+
+  LinkMessage:
+    type: object
+    required:
+      - sessionId
+      - title
+      - text
+      - url
+      - imageurl
+      - description
+      - messagetype
+      - numberReplyIds
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      title:
+        type: string
+      text:
+        type: string
+      url:
+        type: string
+      imageurl:
+        type: string		
+      description:
+        type: string
+      messagetype:
+        type: string
+      numberReplyIds:
+        type: array
+        items:
+          $ref: "#/definitions/NumberReplyIds"
+
+
+  ContactMessage:
+    type: object
+    required:
+      - sessionId
+      - displayName
+      - number
+      - numberReplyIds
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      displayName:
+        type: string
+      number:
+        type: string
+      numberReplyIds:
+        type: array
+        items:
+          $ref: "#/definitions/NumberReplyIds"
+
+
+  ImageMessage:
+    type: object
+    required:
+      - sessionId
+      - image
+      - numberReplyIds
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      image:
+        type: string
+        format: uri
+        description: Fully qualified url
+        example: https://cdn.pixabay.com/photo/2019/11/08/11/56/cat-4611189__340.jpg
+      caption:
+        type: string
+      numberReplyIds:
+        type: array
+        items:
+          $ref: "#/definitions/NumberReplyIds"
+
+
+  VideoMessage:
+    type: object
+    required:
+      - sessionId
+      - video
+      - numberReplyIds
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      videoThumbnail:
+        type: string
+        format: uri
+        description: Fully qualified url for thumbnail
+      video:
+        type: string
+        format: uri
+        description: Fully qualified url
+        example: https://file-examples.com/wp-content/uploads/2017/04/file_example_MP4_480_1_5MG.mp4
+      caption:
+        type: string
+      numberReplyIds:
+        type: array
+        items:
+          $ref: "#/definitions/NumberReplyIds"
+  AudioMessage:
+    type: object
+    required:
+      - sessionId
+      - audio
+      - numberReplyIds
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      audio:
+        type: string
+        format: uri
+        description: Fully qualified url
+        example: https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3
+      numberReplyIds:
+        type: array
+        items:
+          $ref: "#/definitions/NumberReplyIds"
+  DocMessage:
+    type: object
+    required:
+      - sessionId
+      - doc
+      - title
+      - docType
+    properties:
+      sessionId:
+        type: string
+        format: uuid4
+      doc:
+        type: string
+        format: uri
+        description: Fully qualified url
+        example: https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
+      docType:
+        type: string
+        enum:
+          [
+            "DOC",
+            "DOCX",
+            "CSV",
+            "XLS",
+            "XLSX",
+            "PDF",
+            "PPT",
+            "PPTX",
+            "GZ",
+            "ZIP",
+            "7z",
+            "TEXT",
+          ]
+
+      title:
+        type: string
+      numberReplyIds:
+        type: array
+        items:
+          $ref: "#/definitions/NumberReplyIds"

@@ -1,0 +1,45 @@
+A) ADMIN PANEL
+    a) Steps of installation for admin panel
+        1) Install PostgreSQL. Make sure below things at the time of installation.
+            Port Number :   5432
+            Host Name   :   localhost
+            Username    :   postgres
+            Password    :   pgadmin
+        2) After installation, create database using below command.
+            create database rhapsody_tracker;
+        3) Log file location set in application is. Create below folders.
+            /root/apps/rhapsody-trail-tracker/logs/
+        4) Copy keystore file in below location from admin-panel-executable folder.
+            /root/ssl/creditvision.net_fullchain_and_key.p12
+        5) Then run admin-panel application using below command.
+            java -Dspring.profiles.active=prod -Xms100m -Xmx500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=. -jar rhapsody-trail-tracker-RELEASE-0.0.1.jar
+        OR if you want to run it in background on linux/mac/centos platform, use below command.
+            nohup java -Dspring.profiles.active=prod -Xms100m -Xmx500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=. -jar rhapsody-trail-tracker-RELEASE-0.0.1.jar&
+        6) Access admin panel using below url.
+            https://localhost:8443/
+        7) Default user name password of SUPER_ADMIN are below.
+            Username : nirranjan.raut@gmail.com
+            Password : Niranjan@123
+            Username : ognatius@gmail.com
+            Password : Ognatius@123
+        8) Refer admin panel video for how to execute and use admin panel application.
+
+    b) Extra things in admin panel.
+        1) Source code included jenkins pipeline which automatically deploys RELEASE version of the app on server without any user interaction.
+
+
+B) MOBILE APP
+    a) Steps of execution on mobile app.
+        1) Minimum android version required is Android 4.1 and developed for Android version 11. Also check if android install app from unknown source is turned on.
+        2) Get the username and password from SUPER_ADMIN. Super admin can create mobile app user.
+        3) Login using that username and password.
+        4) SUPER_ADMIN doesn't have access to the mobile app functionality.
+        5) You can check distribution and outreaches on google map.
+
+
+C) FUTURE SCOPE
+    1) Adding alexa skill app to know the statistics by asking alexa.
+    2) For e.g. you can ask alexa about distribution in specific town as below.
+    "Alexa, tell me Rhapsody of Reality distribution in Pune city." OR "Alexa, How many copies of Rhapsody of Reality are distributed in Pune city"
+    3) And alexa will respond you like below.
+    "Total 5500 copies are distributed in Pune city."

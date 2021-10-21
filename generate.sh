@@ -1,0 +1,1 @@
+swagger generate server -t gen -f ./static/spec.yml --exclude-main -A wa-api
