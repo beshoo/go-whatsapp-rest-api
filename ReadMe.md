@@ -2,8 +2,8 @@
 go-whatsapp-rest-APIis a Go library for the WhatsApp web which use Swagger as api interface
 Sessions are stored in MYSQL
 
-The API support the following 
-
+# The API support the following
+```
 ​/profile​/scanqr [Scan the QR code via the browser]
 ​/profile​/phone​/isconnected
 ​/profile​/phone​/connect
@@ -22,8 +22,10 @@ The API support the following
 ​/send​/vcard
 ​/send​/link
 ​/send​/doc
+```
+# Web Hooks
 
-Web Hooks
+```
 /notify​/logout
 /notify​/receive
 /notify​/connectivity
@@ -36,6 +38,7 @@ Web Hooks
 /power​/battery
 /message​/location
 /message​/livelocation
+```
 
 The API is built on [go-whatsapp], but it does not support the MD right now, any PL is welcome
 
@@ -52,7 +55,8 @@ The API is built on [go-whatsapp], but it does not support the MD right now, any
 Build:
   - Build it for x86 architecture and linux os
   
-```sh
+```
+sh
 cd wa-api
 sh build.sh
 ```
@@ -62,6 +66,7 @@ Run:
  - Copy static folder for docs
  - Change the url to point to deployement server in static/qrcode/index.js for qr to work
  - Create a MySql DB eg
+
  ```
 mysql -u root -p
 create database wapidb;
