@@ -66,10 +66,11 @@ cd wa-api
 sh build.sh
 ```
 
-Run: 
+# Run
  - Copy wa-api executable to your server
  - Copy static folder for docs
- - Change the url to point to deployement server in static/qrcode/index.js for qr to work
+ - Open static/qrcode/index.html and update the [ip_address] to match your deployement server ip address or domian name.
+ - Change the url to point to deployement server in static/qrcode/index.html for qr to work
  - Create a MySql DB eg
 
  ```
