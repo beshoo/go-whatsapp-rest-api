@@ -61,9 +61,7 @@ Build:
   - Build it for x86 architecture and linux os
   
 ```
-sh
-cd wa-api
-sh build.sh
+sh ./build.sh
 ```
 
 # Run
