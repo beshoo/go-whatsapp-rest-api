@@ -4,6 +4,9 @@ go-whatsapp-rest-API is a **Go library** for the WhatsApp web which use Swagger 
 # Multi-devices (MD) Support.
 This version does NOT support multi-devices (MD)
 
+# Multi-Session with singile go-whatsapp processes support.
+Yes, you can run multi-sessions
+
 # Sessions 
 All sessions are stored in MYSQL
 
